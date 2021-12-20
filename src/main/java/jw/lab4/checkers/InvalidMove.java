@@ -1,4 +1,4 @@
-package jw.Lab4.checkers;
+package jw.lab4.checkers;
 
 public class InvalidMove extends Exception{
 
