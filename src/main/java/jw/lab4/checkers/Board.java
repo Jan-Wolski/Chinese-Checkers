@@ -10,7 +10,7 @@ public class Board {
   private int turn = 0;
   private int playerTurn = 0;
 
-  private Field fields;
+  public Field[] fields;
 
   Board() {
 
@@ -22,17 +22,18 @@ public class Board {
 
   public void createBoard(int playersNumber) {
     this.playersNumber = playersNumber;
+    fields = FieldsConstructor.construct();
   }
 
   public MoveInstructions move(MoveInstructions instr) {
+
     if (instr != null) {
+      if (!fields[instr.field].move(instr.dir)) {
+        return null;
+      }
       nextTurn();
     }
     return instr;
-  }
-
-  public void undo() {
-
   }
 
   public void changePlayer(int player) {
@@ -45,6 +46,7 @@ public class Board {
 
   public void nextTurn() {
     playerTurn++;
+    turn++;
     if (playerTurn >= playersNumber) {
       playerTurn = 0;
     }

@@ -1,6 +1,5 @@
 package jw.lab4.checkers;
 
-import java.util.PrimitiveIterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,84 +9,51 @@ public class Game {
   ExecutorService executor;
 
   Game() {
+
   }
 
   Game(boolean server) {
     start(server);
   }
 
-  protected void start(boolean server) {
+  public synchronized void start(boolean server) {
     board = new Board();
-    board.createBoard(2);
-    executor = Executors.newFixedThreadPool(2);
-    users = new User[2];
     if (server) {
-      users[0] = new UserInternet(true);
-      users[1] = new UserCI();
+      users = new User[1];
+      executor = Executors.newFixedThreadPool(7);
+      users[0] = new UserInternet(true, executor);
+      users[0].gameSet(this);
+      users[0].start();
     } else {
-      users[0] = new UserCI();
-      users[1] = new UserInternet(false);
-
+      users = new User[2];
+      executor = Executors.newFixedThreadPool(2);
+      users[0] = new UserGI();
+      users[0].gameSet(this);
+      users[1] = new UserInternet(false, executor);
+      users[1].gameSet(this);
+      users[1].start();
     }
-
-    for (int i = 0; i < users.length; i++) {
-      users[i].setMainThread(Thread.currentThread());
-      executor.execute(users[i]);
+    try {
+      wait();
+    } catch (InterruptedException e) {
+      System.exit(0);
     }
-
-    mainLoop();
   }
 
-  // protected User userFactory(String type) {
-  // switch (type) {
-  // case "CLI":
-  // return new UserCI();
-  // // case "GUI":
-  // // return new UserGI();
-  // case "Internet":
-  // return new UserInternet(false);
-  // default:
-  // return null;
-  // }
-  // }
+  public synchronized void setPlayers(int players) {
+    board.createBoard(players);
+    MoveInstructions m = new MoveInstructions();
+    m.start = true;
+    
+    move(m);
+  }
 
-  private synchronized void mainLoop() {
-    int player = board.getPlayer();
-    MoveInstructions move = null;
-    int feedback = 0;
-    while (true) {
-
-      try {
-        player = board.getPlayer();
-        System.out.println("Player: " + player);
-        if (Thread.interrupted()) {
-          throw new InterruptedException();
-        }
-        wait();
-
-      } catch (InterruptedException e) {
-        if (feedback > 0) {
-          for (User user : users) {
-            if (move.compare(user.getMoveOut())) {
-              feedback--;
-            }
-          }
-        } else {
-          // try {
-          move = board.move(users[player].getMoveOut(true));
-          // }
-          // catch (InvalidMove e) {
-
-          // }
-
-          if (move != null) {
-            feedback = users.length - 1;
-            for (User user : users) {
-              user.setMoveIn(move);
-            }
-          }
-        }
+  public synchronized void move(MoveInstructions instr) {
+    if (board.move(instr) != null) {
+      for (User user : users) {
+        user.move(instr);
       }
     }
+
   }
 }

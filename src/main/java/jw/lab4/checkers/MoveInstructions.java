@@ -4,6 +4,7 @@ public class MoveInstructions {
 
   public int field;
   public int dir;
+  public boolean start = false;
 
   // fields used for veryfying purpouses, idk. if it'll be implemented
   public int player;
@@ -19,14 +20,22 @@ public class MoveInstructions {
 
   public String serialize() {
     String str = "";
-    str += field + ";" + dir;
+    if (start) {
+      str = "START";
+    } else {
+      str += field + ";" + dir;
+    }
     return str;
   }
 
   public void deserialize(String str) {
-    String[] tokens = str.split(";");
-    field = Integer.parseInt(tokens[0]);
-    dir = Integer.parseInt(tokens[1]);
+    if (str.equals("START")) {
+      start = true;
+    } else {
+      String[] tokens = str.split(";");
+      field = Integer.parseInt(tokens[0]);
+      dir = Integer.parseInt(tokens[1]);
+    }
 
   }
 

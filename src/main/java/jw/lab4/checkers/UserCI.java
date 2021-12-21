@@ -1,51 +1,31 @@
-package jw.lab4.checkers;
+// package jw.lab4.checkers;
 
-import java.util.Scanner;
+// import java.util.Scanner;
 
-public class UserCI extends User {
+// public class UserCI extends User implements Runnable{
 
-  private Scanner in;
+//   private Scanner in;
 
-  public UserCI(){
-    setup();
-  }
-
-
-  public void setup() {
-    in = new Scanner(System.in);
-
-  }
-
-  @Override
-  public void run() {
-    String line;
-    while (in.hasNextLine()) {
-      line = in.nextLine();
-      MoveInstructions move = new MoveInstructions();
-      move.deserialize(line);
-      setMoveOut(move);
-    }
-
-  }
+//   public UserCI(){
+//     setup();
+//   }
 
 
-  @Override
-  public void display() {
-    System.out.println("Executed move " + moveIn.serialize());
-    
-  }
+//   public void setup() {
+//     in = new Scanner(System.in);
 
+//   }
 
-  @Override
-  public void error() {
-    System.out.println("Wrong move");
-    
-  }
+//   @Override
+//   public void run() {
+//     String line;
+//     while (in.hasNextLine()) {
+//       line = in.nextLine();
+//       MoveInstructions move = new MoveInstructions();
+//       move.deserialize(line);
+//       gameMove(move);
+//     }
 
+//   }
 
-  @Override
-  public void accept() {
-    setMoveOut(moveIn);
-  }
-
-}
+// }
