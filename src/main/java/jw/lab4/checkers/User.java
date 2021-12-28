@@ -24,8 +24,13 @@ public abstract class User {
     game.move(move);
   }
 
-  public void gameStart(int players) {
-    this.game.setPlayers(players);
+  public void gameStart() {
+    this.game.requestStart();
   }
+
+  public void gameStart(int players) {
+    this.game.startGame(players);
+  }
+
 
 }

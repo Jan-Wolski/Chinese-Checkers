@@ -3,6 +3,7 @@ package jw.lab4.checkers;
 public class Field {
   public Field[] neighbours;
   public int player = -1;
+  public int base = -1;
 
   public Field(){
 

@@ -38,14 +38,7 @@ public class Game {
     } catch (InterruptedException e) {
       System.exit(0);
     }
-  }
-
-  public synchronized void setPlayers(int players) {
-    board.createBoard(players);
-    MoveInstructions m = new MoveInstructions();
-    m.start = true;
-    
-    move(m);
+    board.createBoard();
   }
 
   public synchronized void move(MoveInstructions instr) {
@@ -54,6 +47,5 @@ public class Game {
         user.move(instr);
       }
     }
-
   }
 }

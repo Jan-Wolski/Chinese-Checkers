@@ -65,10 +65,7 @@ public class UserInternet extends User implements Runnable {
         players[playerNumber] = new Communicator(playerNumber, serverS.accept(), this);
         executor.execute(players[playerNumber]);
         System.out.println("New player: " + playerNumber);
-        playerNumber++;
-        if (playerNumber == 3) {
-          gameStart(3);
-        }
+        processMove(new MoveInstructions());
       }
     } catch (IOException e) {
       System.out.print(e);
