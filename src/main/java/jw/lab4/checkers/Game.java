@@ -8,6 +8,8 @@ public class Game {
   Board board;
   ExecutorService executor;
 
+  
+
   Game() {
 
   }
@@ -42,8 +44,11 @@ public class Game {
   }
 
   public synchronized void move(MoveInstructions instr) {
-    if (board.move(instr) != null) {
-      for (User user : users) {
+    instr = board.interpretMove(instr);
+    for (User user : users) {
+      if (instr == null) {
+        user.error();
+      } else {
         user.move(instr);
       }
     }

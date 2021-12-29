@@ -65,7 +65,7 @@ public class UserInternet extends User implements Runnable {
         players[playerNumber] = new Communicator(playerNumber, serverS.accept(), this);
         executor.execute(players[playerNumber]);
         System.out.println("New player: " + playerNumber);
-        processMove(new MoveInstructions());
+        processMove(new MoveInstructions(playerNumber));
       }
     } catch (IOException e) {
       System.out.print(e);
@@ -88,18 +88,15 @@ public class UserInternet extends User implements Runnable {
     sender = player;
     MoveInstructions move = new MoveInstructions();
     move.deserialize(line);
-    if (move.start) {
-      gameStart(3);
-    } else {
-      gameMove(move);
-    }
+    move.player = player;
 
   }
 
   @Override
   public void error() {
-    // TODO Auto-generated method stub
-
+    MoveInstructions instr = new MoveInstructions(MoveInstructions.STATE.ERROR);
+    players[sender].send(instr.serialize());
+    sender = -1;
   }
 
   @Override
@@ -147,6 +144,8 @@ public class UserInternet extends User implements Runnable {
         line = in.nextLine();
         parent.process(playerNum, line);
       }
+      System.out.println("Player:" + playerNum + " disconnected");
+      parent.clean(playerNum);
     }
 
     public void send(String line) {

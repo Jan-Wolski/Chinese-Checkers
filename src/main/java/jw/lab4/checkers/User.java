@@ -7,6 +7,7 @@ public abstract class User {
 
   protected Thread mainThread = null;
   protected Game game;
+  protected int player;
 
   abstract public void error();
   abstract public void move(MoveInstructions instr);
@@ -20,17 +21,8 @@ public abstract class User {
     this.game = game;
   }
 
-  public void gameMove(MoveInstructions move) {
-    game.move(move);
+  public void processMove(MoveInstructions instr){
+    game.move(instr);
   }
-
-  public void gameStart() {
-    this.game.requestStart();
-  }
-
-  public void gameStart(int players) {
-    this.game.startGame(players);
-  }
-
 
 }

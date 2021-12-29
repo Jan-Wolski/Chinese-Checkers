@@ -15,8 +15,8 @@ public class Field {
   }
 
 
-  boolean move(int dir) {
-    if(player == -1){
+  boolean move(int nowPlay, int dir) {
+    if(player != nowPlay){
       return false;
     }
     boolean good = neighbours[dir].move(dir, player, false);
