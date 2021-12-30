@@ -39,8 +39,7 @@ public class FieldsConstructor {
     for (int i = 0; i < fields.length; i++) {
       fields[i] = new Field(6);
     }
-
-    // gen first triangle
+    
     int p = 0;
 
     p = triangle(p, 0, 4, 4, false, false, 0);

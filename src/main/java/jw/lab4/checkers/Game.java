@@ -7,8 +7,7 @@ public class Game {
   User[] users;
   Board board;
   ExecutorService executor;
-
-  
+  int player = -1;
 
   Game() {
 
@@ -20,6 +19,7 @@ public class Game {
 
   public synchronized void start(boolean server) {
     board = new Board();
+    board.createBoard();
     if (server) {
       users = new User[1];
       executor = Executors.newFixedThreadPool(7);
@@ -40,17 +40,30 @@ public class Game {
     } catch (InterruptedException e) {
       System.exit(0);
     }
-    board.createBoard();
   }
 
-  public synchronized void move(MoveInstructions instr) {
-    instr = board.interpretMove(instr);
+  public synchronized void move(MoveInstructions instr) throws InvalidMove {
+    if (instr == null) {
+      throw new InvalidMove("No move given");
+    }
+
+    if(instr.state == MoveInstructions.STATE.ERROR){
+      System.out.println("Desynchronized");
+      System.exit(-1);
+    }
+
+    if (instr.player != -1) {
+      instr.player = player;
+    }
+    
+    try {
+      instr = board.interpretMove(instr);
+    } catch (InvalidMove e) {
+      throw e;
+    }
+
     for (User user : users) {
-      if (instr == null) {
-        user.error();
-      } else {
-        user.move(instr);
-      }
+      user.move(instr);
     }
   }
 }

@@ -7,12 +7,14 @@ import java.awt.Font;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class UserGI extends User {
 
   private JFrame frame;
-  private JButton[] fields = new JButton[5 * 5];
+  private JButton[] fields;
+  private JLabel warning;
 
   int field = -1;
   int dir = -1;
@@ -22,7 +24,7 @@ public class UserGI extends User {
     int height = game.board.height;
     frame = new JFrame("Game");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(400, 400);
+    frame.setSize(800, 800);
     JPanel board = new JPanel();
     // frame.setLayout(new (width, height));
     board.setLayout(new GridLayout(width, height));
@@ -30,6 +32,8 @@ public class UserGI extends User {
     Font font = new Font("Arial", Font.BOLD, 48);
 
     fields = new JButton[width * height];
+
+    warning = new JLabel();
 
     for (int i = 0; i < fields.length; i++) {
       fields[i] = new JButton();
@@ -45,16 +49,18 @@ public class UserGI extends User {
       });
       board.add(fields[i]);
     }
-    JButton startButton = new JButton("Start");
+
+    JButton startButton = new JButton("Ready");
     startButton.addActionListener(new ActionListener() {
 
       @Override
       public void actionPerformed(ActionEvent action) {
-        gameStart();
+        ready();
       }
 
     });
     frame.add(board);
+    frame.add(warning);
     frame.add(startButton);
     frame.setVisible(true);
   }
@@ -65,33 +71,15 @@ public class UserGI extends User {
     } else if (field == f) {
       field = -1;
     } else {
-      System.out.println("Moving from: " + field);
-      MoveInstructions m = null;
-      if (f == field + 1)
-        m = new MoveInstructions(field, 0);
-      else if (f == field - 1)
-        m = new MoveInstructions(field, 2);
-      else if (f == field + 5)
-        m = new MoveInstructions(field, 1);
-      else if (f == field - 5)
-        m = new MoveInstructions(field, 3);
-      else
-        field = -1;
-      if (m != null) {
-        field = -1;
-        gameMove(m);
-      }
+      MoveInstructions m = new MoveInstructions(field, f);
+      processMove(m);
     }
 
   }
 
-  public void update() {
-
-  }
-
   @Override
-  public void error() {
-    // TODO Auto-generated method stub
+  public void error(String str) {
+    warning.setText(str);
 
   }
 

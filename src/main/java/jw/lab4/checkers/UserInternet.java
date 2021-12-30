@@ -16,9 +16,10 @@ public class UserInternet extends User implements Runnable {
   boolean server;
   ExecutorService executor;
   Communicator[] players;
-  Communicator player;
-  int playerNumber = 0;
+  int playersNum = 0;
   int sender = -1;
+
+  int maxPlayers = 6;
 
   public UserInternet(boolean server, ExecutorService ex) {
     setup("localhost", 8000, server, ex);
@@ -37,7 +38,7 @@ public class UserInternet extends User implements Runnable {
     this.port = port;
     this.server = server;
     this.executor = ex;
-    players = new Communicator[6];
+    players = new Communicator[maxPlayers];
 
   }
 
@@ -62,14 +63,38 @@ public class UserInternet extends User implements Runnable {
     try {
       serverS = new ServerSocket(port);
       while (true) {
-        players[playerNumber] = new Communicator(playerNumber, serverS.accept(), this);
-        executor.execute(players[playerNumber]);
-        System.out.println("New player: " + playerNumber);
-        processMove(new MoveInstructions(playerNumber));
+        Socket newPlayer = serverS.accept();
+        addClient(newPlayer);
+
       }
     } catch (IOException e) {
       System.out.print(e);
     }
+  }
+
+  public synchronized void addClient(Socket socket) {
+    players[playersNum] = new Communicator(playersNum, socket, this);
+    executor.execute(players[playersNum]);
+    System.out.println("New player: " + playersNum);
+    players[playersNum].send("Ex:" + playersNum);
+    incPlayer();
+    setPlayersNumber(countPlayers());
+  }
+
+  public synchronized void incPlayer() {
+    while (players[playersNum] != null || playersNum < maxPlayers) {
+      playersNum++;
+    }
+  }
+
+  public synchronized int countPlayers() {
+    int count = 0;
+    for (int i = 0; i < maxPlayers; i++) {
+      if (players[i] != null) {
+        count++;
+      }
+    }
+    return count;
   }
 
   public void asClient() {
@@ -85,15 +110,21 @@ public class UserInternet extends User implements Runnable {
   }
 
   public void process(int player, String line) {
-    sender = player;
-    MoveInstructions move = new MoveInstructions();
-    move.deserialize(line);
-    move.player = player;
+    if (line.substring(0, 3).equals("Ex:")) {
+      choosePlayer(Integer.parseInt(line.substring(3)));
+    } else {
+      sender = player;
+      MoveInstructions move = new MoveInstructions();
+      move.deserialize(line);
+      if (server) {
+        move.player = player;
+      }
+    }
 
   }
 
   @Override
-  public void error() {
+  public void error(String str) {
     MoveInstructions instr = new MoveInstructions(MoveInstructions.STATE.ERROR);
     players[sender].send(instr.serialize());
     sender = -1;
@@ -108,6 +139,11 @@ public class UserInternet extends User implements Runnable {
       }
     }
     sender = -1;
+  }
+
+  public synchronized void clean(int num) {
+    players[num] = null;
+    playersNum = num;
   }
 
   private class Communicator implements Runnable {
