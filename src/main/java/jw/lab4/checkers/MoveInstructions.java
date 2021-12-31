@@ -36,11 +36,10 @@ public class MoveInstructions {
   }
 
   private String serializeInt(int vari) {
-    String str = "";
+    String str = ";";
     // if (vari != -1) {
     str += Integer.toString(vari);
     // }
-    str += ';';
     return str;
   }
 

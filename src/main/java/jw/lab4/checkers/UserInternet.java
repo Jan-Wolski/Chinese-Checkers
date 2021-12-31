@@ -65,7 +65,6 @@ public class UserInternet extends User implements Runnable {
       while (true) {
         Socket newPlayer = serverS.accept();
         addClient(newPlayer);
-
       }
     } catch (IOException e) {
       System.out.print(e);
@@ -73,6 +72,13 @@ public class UserInternet extends User implements Runnable {
   }
 
   public synchronized void addClient(Socket socket) {
+    if (playersNum == -1) {
+      incPlayer();
+      if (playersNum == -1) {
+        return;
+      }
+    }
+
     players[playersNum] = new Communicator(playersNum, socket, this);
     executor.execute(players[playersNum]);
     System.out.println("New player: " + playersNum);
@@ -82,8 +88,11 @@ public class UserInternet extends User implements Runnable {
   }
 
   public synchronized void incPlayer() {
-    while (players[playersNum] != null || playersNum < maxPlayers) {
+    while (playersNum < maxPlayers && players[playersNum] != null) {
       playersNum++;
+    }
+    if (playersNum == maxPlayers) {
+      playersNum = -1;
     }
   }
 
@@ -110,17 +119,18 @@ public class UserInternet extends User implements Runnable {
   }
 
   public void process(int player, String line) {
+    System.out.println(line);
     if (line.substring(0, 3).equals("Ex:")) {
       choosePlayer(Integer.parseInt(line.substring(3)));
     } else {
       sender = player;
-      MoveInstructions move = new MoveInstructions();
-      move.deserialize(line);
+      MoveInstructions instr = new MoveInstructions();
+      instr.deserialize(line);
       if (server) {
-        move.player = player;
+        instr.player = player;
       }
+      processMove(instr);
     }
-
   }
 
   @Override
@@ -180,7 +190,7 @@ public class UserInternet extends User implements Runnable {
         line = in.nextLine();
         parent.process(playerNum, line);
       }
-      System.out.println("Player:" + playerNum + " disconnected");
+      System.out.println("Player " + playerNum + " disconnected");
       parent.clean(playerNum);
     }
 

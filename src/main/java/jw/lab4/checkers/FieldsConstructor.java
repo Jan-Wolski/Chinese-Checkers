@@ -31,29 +31,21 @@ public class FieldsConstructor {
   }
 
   public void constructStar() {
-    Field[] fields = new Field[73];
+    fields = new Field[121];
     height = 17;
     width = 13;
-    Field[][] fieldsPos = new Field[height][width];
+    fieldsPos = new Field[height][width];
 
     for (int i = 0; i < fields.length; i++) {
       fields[i] = new Field(6);
     }
-    
+
     int p = 0;
 
     p = triangle(p, 0, 4, 4, false, false, 0);
     p = triangle(p, 4, 5, 13, true, true, 1);
-    p = triangle(p, 9, 4, 13, false, true, 3);
-    p = triangle(p, 13, 4, 4, true, false, 5);
-
-    for (int i = 0; i < 5; i++) {
-      for (int j = width; j > 0; j--) {
-        fieldsPos[i][width / 2 - i + j] = fields[p];
-        fields[p].player = 0;
-        p++;
-      }
-    }
+    p = triangle(p, 9, 4, 13, false, true, 2);
+    p = triangle(p, 13, 4, 4, true, false, 3);
 
     populateNeighbours();
   }
@@ -73,16 +65,17 @@ public class FieldsConstructor {
     }
 
     for (int i = 0; i < rowNum; i++) {
-      for (int j = 0; j < colMax - i * d - (1 - d) * (colMax - i); j++) {
-        fieldsPos[row + i][(width - colMax) / 2 + i + j] = fields[p];
+      int pad = i * d + (1 - d) * (rowNum - 1 - i);
+      for (int j = 0; j < colMax - pad; j++) {
+        fieldsPos[row + i][(width - colMax + pad) / 2 + j] = fields[p];
         if (dist) {
-          if (j < rowNum - i) {
-            fields[p].player = player;
-          } else if (j > colMax - rowNum + i) {
-            fields[p].player = player + 1;
+          if (j < 4 - pad) {
+            fields[p].base = player;
+          } else if (j > colMax - pad - 5 + pad) {
+            fields[p].base = 6 - player;
           }
         } else {
-          fields[p].player = player;
+          fields[p].base = player;
         }
         p++;
       }
@@ -93,13 +86,17 @@ public class FieldsConstructor {
   private void populateNeighbours() {
     for (int i = 0; i < height; i++) {
       for (int j = 0; j < width; j++) {
-        if(fieldsPos[i][j] != null){
-          fieldsPos[i][j].neighbours[0]=fieldsPos[i][j+1];
-          fieldsPos[i][j].neighbours[1]=fieldsPos[i+1][j+1];
-          fieldsPos[i][j].neighbours[2]=fieldsPos[i+1][j];
-          fieldsPos[i][j].neighbours[3]=fieldsPos[i][j-1];
-          fieldsPos[i][j].neighbours[4]=fieldsPos[i-1][j];
-          fieldsPos[i][j].neighbours[5]=fieldsPos[i-1][j+1];
+        if (fieldsPos[i][j] != null) {
+          try {
+            fieldsPos[i][j].neighbours[0] = fieldsPos[i][j + 1];
+            fieldsPos[i][j].neighbours[1] = fieldsPos[i + 1][j + 1];
+            fieldsPos[i][j].neighbours[2] = fieldsPos[i + 1][j];
+            fieldsPos[i][j].neighbours[3] = fieldsPos[i][j - 1];
+            fieldsPos[i][j].neighbours[4] = fieldsPos[i - 1][j];
+            fieldsPos[i][j].neighbours[5] = fieldsPos[i - 1][j + 1];
+          } catch (IndexOutOfBoundsException e) {
+
+          }
         }
       }
     }

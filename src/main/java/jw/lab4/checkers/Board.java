@@ -93,7 +93,6 @@ public class Board {
     if (playersNum == 5 || playersNum > 6 || playersNum <= 0) {
       throw new InvalidMove("Invalid number of players");
     }
-    started = true;
 
     int[] transform = new int[maxPlayers];
 
@@ -113,12 +112,11 @@ public class Board {
           p++;
         }
 
-        if (bNum == p) {
-          transform[bNum] = p;
-        }
+        transform[bNum] = p;
       } else {
         transform[bNum] = -1;
       }
+
     }
 
     for (Field f : fields) {
@@ -132,6 +130,7 @@ public class Board {
       }
     }
 
+    started = true;
     return true;
   }
 

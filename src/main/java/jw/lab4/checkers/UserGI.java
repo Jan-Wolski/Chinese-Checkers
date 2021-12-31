@@ -2,7 +2,10 @@ package jw.lab4.checkers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.WildcardType;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.ComponentOrientation;
 import java.awt.Font;
 
 import javax.swing.JButton;
@@ -20,20 +23,29 @@ public class UserGI extends User {
   int dir = -1;
 
   UserGI() {
+
+  }
+
+  @Override
+  public void start() {
     int width = game.board.width;
     int height = game.board.height;
+
     frame = new JFrame("Game");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(800, 800);
-    JPanel board = new JPanel();
-    // frame.setLayout(new (width, height));
-    board.setLayout(new GridLayout(width, height));
+    frame.setSize(1000, 800);
+    frame.setLayout(new FlowLayout(FlowLayout.LEFT));
+    frame.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
-    Font font = new Font("Arial", Font.BOLD, 48);
+    JPanel board = new JPanel();
+    board.setLayout(new GridLayout(height,width));
+    board.setSize(800, 800);
+
+    Font font = new Font("Arial", Font.BOLD, 24);
 
     fields = new JButton[width * height];
 
-    warning = new JLabel();
+    warning = new JLabel("Warning");
 
     for (int i = 0; i < fields.length; i++) {
       fields[i] = new JButton();
@@ -59,10 +71,15 @@ public class UserGI extends User {
       }
 
     });
+
+    board.setBounds(0, 0, 800, 800);
     frame.add(board);
+    warning.setBounds(0, 800, 600, 900);
     frame.add(warning);
+    startButton.setBounds(600, 800, 800, 900);
     frame.add(startButton);
     frame.setVisible(true);
+    move(null);
   }
 
   public void execute(int f) {
@@ -85,24 +102,24 @@ public class UserGI extends User {
 
   @Override
   public void move(MoveInstructions instr) {
-    for (int i = 0; i < game.board.fieldsPos.length; i++) {
-      for (int j = 0; j < game.board.fieldsPos[i].length; i++) {
-        if(game.board.fieldsPos[i][j]!=null){
-          int p = game.board.fieldsPos[i][j].player;
+    for (int i = 0; i < game.board.height; i++) {
+      for (int j = 0; j < game.board.width; j++) {
+        if (game.board.fieldsPos[i][j] != null) {
+          int p = game.board.fieldsPos[i][j].base;
           if (p > -1) {
-            fields[i].setText(Integer.toString(p));
+            fields[i * game.board.width + j].setText(Integer.toString(p));
           } else {
-            fields[i].setText("-0-");
+            fields[i * game.board.width + j].setText("-");
           }
+          p = game.board.fieldsPos[i][j].player;
+          if (p > -1) {
+            fields[i * game.board.width + j].setText("-"+Integer.toString(p)+"-");
+          }
+          
         }
       }
     }
 
   }
 
-  @Override
-  public void start() {
-    // TODO Auto-generated method stub
-
-  }
 }

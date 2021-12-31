@@ -31,6 +31,7 @@ public class Game {
       executor = Executors.newFixedThreadPool(2);
       users[0] = new UserGI();
       users[0].gameSet(this);
+      users[0].start();
       users[1] = new UserInternet(false, executor);
       users[1].gameSet(this);
       users[1].start();
@@ -52,7 +53,7 @@ public class Game {
       System.exit(-1);
     }
 
-    if (instr.player != -1) {
+    if (instr.player == -1) {
       instr.player = player;
     }
     
