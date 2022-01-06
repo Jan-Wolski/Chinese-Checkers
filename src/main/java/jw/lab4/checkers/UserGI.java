@@ -1,26 +1,36 @@
 package jw.lab4.checkers;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.ComponentOrientation;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.WildcardType;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.ComponentOrientation;
-import java.awt.Font;
-
+import java.awt.geom.Ellipse2D;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import jw.lab4.checkers.MoveInstructions.STATE;
+
 public class UserGI extends User {
 
   private JFrame frame;
-  private JButton[] fields;
+  private FieldButton[] fields;
+  private SpecialButton specialButton;
   private JLabel warning;
+  Color[] colors;
+  Color defaultColor = Color.lightGray;
+  boolean yourTurn = false;
 
   int field = -1;
-  int dir = -1;
 
   UserGI() {
 
@@ -28,68 +38,82 @@ public class UserGI extends User {
 
   @Override
   public void start() {
-    int width = game.board.width;
-    int height = game.board.height;
+    final int width = game.board.width;
+    final int height = game.board.height;
+
+    setColors();
 
     frame = new JFrame("Game");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1000, 800);
+    frame.setSize(1000, 1000);
     frame.setLayout(new FlowLayout(FlowLayout.LEFT));
     frame.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
     JPanel board = new JPanel();
-    board.setLayout(new GridLayout(height,width));
-    board.setSize(800, 800);
+    board.setLayout(new BoxLayout(board, BoxLayout.Y_AXIS));
+    board.setSize(1000, 1000);
+
+    JPanel[] rows = new JPanel[height];
 
     Font font = new Font("Arial", Font.BOLD, 24);
 
-    fields = new JButton[width * height];
+    fields = new FieldButton[game.board.fields.length];
 
     warning = new JLabel("Warning");
 
-    for (int i = 0; i < fields.length; i++) {
-      fields[i] = new JButton();
-      fields[i].setFont(font);
-      fields[i].setActionCommand(Integer.toString(i));
-      fields[i].addActionListener(new ActionListener() {
+    int row = -1;
+    int col = 0;
 
-        @Override
-        public void actionPerformed(ActionEvent action) {
-          execute(Integer.parseInt(action.getActionCommand()));
+    for (int i = 0; i < fields.length; i++) {
+      fields[i] = new FieldButton(i);
+      fields[i].setFont(font);
+      if (col == 0) {
+        row++;
+        int c = 0;
+        while (game.board.fieldsPos[row][c] == null) {
+          c++;
+        }
+        while (c < width && game.board.fieldsPos[row][c] != null) {
+          col++;
+          c++;
         }
 
-      });
-      board.add(fields[i]);
-    }
+        rows[row] = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        rows[row].setSize(800, 800 / 17);
+        board.add(rows[row]);
 
-    JButton startButton = new JButton("Ready");
-    startButton.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(ActionEvent action) {
-        ready();
       }
 
-    });
+      rows[row].add(fields[i]);
+      col--;
+    }
 
-    board.setBounds(0, 0, 800, 800);
+    specialButton = new SpecialButton();
+
+    // board.setBounds(0, 0, 800, 800);
     frame.add(board);
-    warning.setBounds(0, 800, 600, 900);
+    // warning.setBounds(0, 800, 600, 900);
     frame.add(warning);
-    startButton.setBounds(600, 800, 800, 900);
-    frame.add(startButton);
+    // specialButton.setBounds(600, 800, 800, 900);
+    frame.add(specialButton);
     frame.setVisible(true);
     move(null);
+    frame.pack();
   }
 
   public void execute(int f) {
     if (field == -1) {
       field = f;
+      fields[field].selected = true;
     } else if (field == f) {
+      fields[field].selected = false;
       field = -1;
     } else {
       MoveInstructions m = new MoveInstructions(field, f);
-      processMove(m);
+      if (processMove(m)) {
+        fields[field].selected = false;
+        field = -1;
+      }
     }
 
   }
@@ -97,29 +121,162 @@ public class UserGI extends User {
   @Override
   public void error(String str) {
     warning.setText(str);
-
+    move(null);
   }
 
   @Override
   public void move(MoveInstructions instr) {
-    for (int i = 0; i < game.board.height; i++) {
-      for (int j = 0; j < game.board.width; j++) {
-        if (game.board.fieldsPos[i][j] != null) {
-          int p = game.board.fieldsPos[i][j].base;
-          if (p > -1) {
-            fields[i * game.board.width + j].setText(Integer.toString(p));
+
+    yourTurn = (game.board.getPlayer() == game.player);
+    if (instr != null) {
+      specialButton.changeState(instr);
+    }
+
+    for (int i = 0; i < game.board.fields.length; i++) {
+      if (game.board.fields[i] != null) {
+        int p = game.board.fields[i].player;
+        if (p > -1) {
+          fields[i].setBackground(colors[p]);
+        } else {
+          fields[i].setBackground(defaultColor);
+        }
+
+        p = game.board.fields[i].player;
+        // if (p > -1) {
+        // // fields[i].setForeground(colors[p]);
+        // fields[i].setText("X");
+        // } else {
+        // fields[i].setText("");
+        // }
+
+      }
+    }
+
+  }
+
+  public void setColors() {
+    colors = new Color[6];
+    colors[0] = Color.red;
+    colors[1] = Color.green;
+    colors[2] = Color.blue;
+    colors[3] = Color.yellow;
+    colors[4] = Color.pink;
+    colors[5] = Color.cyan;
+  }
+
+  private class SpecialButton extends JButton implements ActionListener {
+
+    private int state = 0;
+
+    SpecialButton() {
+      setReadyState();
+      addActionListener(this);
+    }
+
+    public void setReadyState() {
+      setText("Ready");
+      state = 1;
+    }
+
+    public void setMoveState() {
+      setText("Finish");
+      state = 2;
+    }
+
+    public void setWaitState() {
+      setText("Wait");
+      state = 3;
+    }
+
+    public void changeState(MoveInstructions instr) {
+      if (instr.player == game.player && instr.state == STATE.READY) {
+        setWaitState();
+      } else {
+
+        if (instr.state == STATE.NEXT || (instr.state == STATE.READY && game.board.started)) {
+          if (yourTurn) {
+            setMoveState();
           } else {
-            fields[i * game.board.width + j].setText("-");
+            setWaitState();
           }
-          p = game.board.fieldsPos[i][j].player;
-          if (p > -1) {
-            fields[i * game.board.width + j].setText("-"+Integer.toString(p)+"-");
-          }
-          
         }
       }
     }
 
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+      switch (state) {
+        case 1:
+          ready();
+          break;
+        case 2:
+          finishMove();
+          break;
+        case 3:
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  private class FieldButton extends JButton implements ActionListener {
+
+    public int fieldNum = -1;
+    private final int thickLine = 3;
+    public boolean selected = false;
+
+    public FieldButton(int id) {
+
+      fieldNum = id;
+      setFocusable(false);
+
+      Dimension size = getPreferredSize();
+      size.width = size.height = Math.max(size.width, size.height);
+      setPreferredSize(size);
+
+      setContentAreaFilled(false);
+
+      addActionListener(this);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      if (getModel().isArmed()) {
+        g.setColor(getBackground());
+      } else {
+        g.setColor(getBackground());
+      }
+      g.fillOval(0, 0, getSize().width - 1, getSize().height - 1);
+
+      super.paintComponent(g);
+    }
+
+    @Override
+    protected void paintBorder(Graphics g) {
+      g.setColor(Color.black);
+      if (selected) {
+        ((Graphics2D) g).setStroke(new BasicStroke(thickLine));
+      } else {
+        ((Graphics2D) g).setStroke(new BasicStroke(1));
+      }
+      g.drawOval(0, 0, getSize().width - 1, getSize().height - 1);
+    }
+
+    Shape shape;
+
+    @Override
+    public boolean contains(int x, int y) {
+      if (shape == null || !shape.getBounds().equals(getBounds())) {
+        shape = new Ellipse2D.Float(0, 0, getWidth(), getHeight());
+      }
+      return shape.contains(x, y);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent arg0) {
+      execute(fieldNum);
+    }
   }
 
 }

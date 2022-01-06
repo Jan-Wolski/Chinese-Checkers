@@ -1,7 +1,5 @@
 package jw.lab4.checkers;
 
-import java.lang.module.InvalidModuleDescriptorException;
-
 /**
  * Manages flow of the game.
  */
@@ -10,7 +8,7 @@ public class Board {
   private int playersNum = 0;
 
   private int turn = 0;
-  private int playerTurn = 0;
+  private int playerTurn = -1;
   private int[] readyPlayers;
   private int[] playerTrans;
 
@@ -18,6 +16,8 @@ public class Board {
   public Field[][] fieldsPos;
 
   public boolean started = false;
+
+  public Field nextMove = null;
 
   public int width;
   public int height;
@@ -41,30 +41,37 @@ public class Board {
     height = construct.height;
   }
 
-  public void setPlayers(int players) {
-    playersNum = players;
-    switch (playersNum) {
-      case 0:
-        activateBases(new int[] { -2 });
-        break;
-      case 1:
-        activateBases(new int[] { 0 });
-        break;
-      case 2:
-        activateBases(new int[] { 0, 3 });
-        break;
-      case 3:
-        activateBases(new int[] { 0, 2, 4 });
-        break;
-      case 4:
-        activateBases(new int[] { 0, 1, 3, 4 });
-        break;
-      case 5:
-        activateBases(new int[] { 0, 1, 3, 4, 5 });
-        break;
-      case 6:
-        activateBases(new int[] { 0, 1, 2, 3, 4, 5 });
-        break;
+  public void setPlayers(int players) throws InvalidMove {
+    if (started) {
+      throw new InvalidMove("Game already started.");
+    } else {
+      playersNum = players;
+      switch (playersNum) {
+        case 0:
+          activateBases(new int[] { -2 });
+          break;
+        case 1:
+          activateBases(new int[] { 0 });
+          break;
+        case 2:
+          activateBases(new int[] { 0, 3 });
+          break;
+        case 3:
+          activateBases(new int[] { 0, 2, 4 });
+          break;
+        case 4:
+          activateBases(new int[] { 0, 1, 3, 4 });
+          break;
+        case 5:
+          activateBases(new int[] { 0, 1, 3, 4, 5 });
+          break;
+        case 6:
+          activateBases(new int[] { 0, 1, 2, 3, 4, 5 });
+          break;
+        default:
+          throw new InvalidMove("Invalid number of players.");
+
+      }
     }
   }
 
@@ -96,9 +103,9 @@ public class Board {
 
     int[] transform = new int[maxPlayers];
 
-    for (int bNum = 0; bNum < maxPlayers; bNum++) {
+    for (int baseNum = 0; baseNum < maxPlayers; baseNum++) {
       int b = 0;
-      while (b < playerTrans.length && bNum != playerTrans[b]) {
+      while (b < playerTrans.length && baseNum != playerTrans[b]) {
         b++;
       }
 
@@ -112,9 +119,9 @@ public class Board {
           p++;
         }
 
-        transform[bNum] = p;
+        transform[baseNum] = p;
       } else {
-        transform[bNum] = -1;
+        transform[baseNum] = -1;
       }
 
     }
@@ -130,20 +137,25 @@ public class Board {
       }
     }
 
+    playerTurn = 0;
     started = true;
     return true;
   }
 
   public void setReady(int player) throws InvalidMove {
-    readyPlayers[player] = 1;
-    int count = 0;
-    for (int r = 0; r < maxPlayers; r++) {
-      count += readyPlayers[r];
-    }
-    if (count == playersNum) {
-      start();
-    } else if (count > playersNum) {
-      throw new InvalidMove("Too many ready players");
+    if (started) {
+      throw new InvalidMove("Game already started.");
+    } else {
+      readyPlayers[player] = 1;
+      int count = 0;
+      for (int r = 0; r < maxPlayers; r++) {
+        count += readyPlayers[r];
+      }
+      if (count == playersNum) {
+        start();
+      } else if (count > playersNum) {
+        throw new InvalidMove("Too many ready players");
+      }
     }
   }
 
@@ -165,6 +177,7 @@ public class Board {
   }
 
   public MoveInstructions interpretMove(MoveInstructions instr) throws InvalidMove {
+
     if (instr != null) {
       switch (instr.state) {
         case JOIN:
@@ -180,27 +193,37 @@ public class Board {
           nextTurn();
           break;
         default:
-          break;
+          throw new InvalidMove();
       }
     }
+
     return instr;
   }
 
   public MoveInstructions move(MoveInstructions instr) throws InvalidMove {
-    if (instr.player != playerTurn) {
-      throw new InvalidMove("Wrong player");
+    if (started) {
+      if (instr.player != playerTurn) {
+        throw new InvalidMove("Wrong player");
+      }
+
+      if (nextMove != null && (nextMove != fields[instr.field1] || nextMove.jumped == false)) {
+        throw new InvalidMove("Other checker already moved.");
+      }
+
+      int dir = getDir(instr);
+
+      Field finishField = fields[instr.field1].move(instr.player, dir);
+
+      if (finishField == null) {
+        throw new InvalidMove("Illegal move");
+      }
+
+      nextMove = finishField;
+
+      checkWin();
+    } else {
+      throw new InvalidMove("Game not started yet.");
     }
-
-    int dir = getDir(instr);
-
-    boolean ok = fields[instr.field1].move(instr.player, dir);
-
-    if (!ok) {
-      throw new InvalidMove("Illegal move");
-    }
-
-    checkWin();
-
     return instr;
   }
 
@@ -211,10 +234,15 @@ public class Board {
         pl[f.player]++;
       }
     }
+    System.out.println(pl);
 
   }
 
   public void nextTurn() {
+    if (nextMove != null) {
+      nextMove.jumped = false;
+    }
+    nextMove = null;
     playerTurn++;
     turn++;
     if (playerTurn >= playersNum) {

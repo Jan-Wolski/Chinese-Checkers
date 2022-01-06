@@ -7,29 +7,6 @@ public class FieldsConstructor {
   int height;
   int width;
 
-  static Field[] constructSquare() {
-    Field[] fields = new Field[5 * 5];
-    for (int i = 0; i < fields.length; i++) {
-      fields[i] = new Field(4);
-    }
-    for (int i = 0; i < fields.length; i++) {
-      if (i < fields.length - 1)
-        fields[i].neighbours[0] = fields[i + 1];
-      if (i > 0)
-        fields[i].neighbours[2] = fields[i - 1];
-
-      if (i < fields.length - 5)
-        fields[i].neighbours[1] = fields[i + 5];
-
-      if (i > 4)
-        fields[i].neighbours[3] = fields[i - 5];
-    }
-    fields[0].player = 0;
-    fields[5].player = 1;
-    fields[20].player = 2;
-    return fields;
-  }
-
   public void constructStar() {
     fields = new Field[121];
     height = 17;
@@ -70,9 +47,9 @@ public class FieldsConstructor {
         fieldsPos[row + i][(width - colMax + pad) / 2 + j] = fields[p];
         if (dist) {
           if (j < 4 - pad) {
-            fields[p].base = player;
-          } else if (j > colMax - pad - 5 + pad) {
             fields[p].base = 6 - player;
+          } else if (j > colMax - pad - 5 + pad) {
+            fields[p].base = player;
           }
         } else {
           fields[p].base = player;
@@ -89,11 +66,11 @@ public class FieldsConstructor {
         if (fieldsPos[i][j] != null) {
           try {
             fieldsPos[i][j].neighbours[0] = fieldsPos[i][j + 1];
-            fieldsPos[i][j].neighbours[1] = fieldsPos[i + 1][j + 1];
-            fieldsPos[i][j].neighbours[2] = fieldsPos[i + 1][j];
+            fieldsPos[i][j].neighbours[1] = fieldsPos[i + 1][j + 1 - ((i + 1) % 2)];
+            fieldsPos[i][j].neighbours[2] = fieldsPos[i + 1][j - ((i + 1) % 2)];
             fieldsPos[i][j].neighbours[3] = fieldsPos[i][j - 1];
-            fieldsPos[i][j].neighbours[4] = fieldsPos[i - 1][j];
-            fieldsPos[i][j].neighbours[5] = fieldsPos[i - 1][j + 1];
+            fieldsPos[i][j].neighbours[4] = fieldsPos[i - 1][j - ((i + 1) % 2)];
+            fieldsPos[i][j].neighbours[5] = fieldsPos[i - 1][j + 1 - ((i + 1) % 2)];
           } catch (IndexOutOfBoundsException e) {
 
           }

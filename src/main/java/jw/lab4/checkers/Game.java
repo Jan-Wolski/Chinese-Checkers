@@ -48,7 +48,7 @@ public class Game {
       throw new InvalidMove("No move given");
     }
 
-    if(instr.state == MoveInstructions.STATE.ERROR){
+    if (instr.state == MoveInstructions.STATE.ERROR) {
       System.out.println("Desynchronized");
       System.exit(-1);
     }
@@ -56,7 +56,7 @@ public class Game {
     if (instr.player == -1) {
       instr.player = player;
     }
-    
+
     try {
       instr = board.interpretMove(instr);
     } catch (InvalidMove e) {

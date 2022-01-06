@@ -1,22 +1,22 @@
 package jw.lab4.checkers;
 
 /**
- * IO interface
+ * IO interface.
  */
 public abstract class User {
 
   protected Thread mainThread = null;
   protected Game game;
 
-  abstract public void error(String str);
+  public abstract void error(String str);
 
   public void error() {
     error("");
   }
 
-  abstract public void move(MoveInstructions instr);
+  public abstract void move(MoveInstructions instr);
 
-  abstract public void start();
+  public abstract void start();
 
   public void setMainThread(Thread thread) {
     mainThread = thread;
@@ -26,12 +26,14 @@ public abstract class User {
     this.game = game;
   }
 
-  public void processMove(MoveInstructions instr) {
+  public boolean processMove(MoveInstructions instr) {
     try {
       game.move(instr);
+      return true;
     } catch (InvalidMove e) {
       error(e.getMessage());
     }
+    return false;
   }
 
   public void choosePlayer(int player) {
@@ -54,6 +56,20 @@ public abstract class User {
 
   public void ready(int player) {
     MoveInstructions instr = new MoveInstructions(MoveInstructions.STATE.READY);
+    instr.player = player;
+    try {
+      game.move(instr);
+    } catch (InvalidMove e) {
+      error(e.getMessage());
+    }
+  }
+
+  public void finishMove() {
+    finishMove(-1);
+  }
+  
+  public void finishMove(int player) {
+    MoveInstructions instr = new MoveInstructions(MoveInstructions.STATE.NEXT);
     instr.player = player;
     try {
       game.move(instr);

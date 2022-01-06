@@ -2,7 +2,7 @@ package jw.lab4.checkers;
 
 public class MoveInstructions {
 
-  final private int paramNum = 4;
+  private final int paramNum = 4;
 
   public int player = -1;
   public int field1 = -1;
