@@ -1,5 +1,8 @@
 package jw.lab4.checkers;
 
+/**
+ * Class constructing board.
+ */
 public class FieldsConstructor {
 
   protected Field[] fields;

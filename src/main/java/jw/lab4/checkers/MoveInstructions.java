@@ -1,11 +1,19 @@
 package jw.lab4.checkers;
 
+/**
+ * Structure for passing move instructions.
+ */
 public class MoveInstructions {
 
   private final int paramNum = 4;
 
+  /** Decides which player to move, or select player.*/
   public int player = -1;
+
+  /** Field id from which the player moves.*/
   public int field1 = -1;
+
+  /** Field id to which the player moves.*/
   public int field2 = -1;
 
   public enum STATE {
@@ -13,9 +21,11 @@ public class MoveInstructions {
     READY,
     NEXT,
     JOIN,
-    ERROR
+    ERROR,
+    CHANGE
   }
 
+  /** Type of action to execute. */
   public STATE state = STATE.PLAY;
 
   public MoveInstructions() {
@@ -51,15 +61,6 @@ public class MoveInstructions {
     str += serializeInt(field2);
     return str;
   }
-
-  // private int deserializeInt(String str) {
-  // int vari = -1;
-  // if (vari != -1) {
-  // str += Integer.toString(vari);
-  // }
-  // str += ';';
-  // return str;
-  // }
 
   public void deserialize(String str) {
     String[] tokens = str.split(";");

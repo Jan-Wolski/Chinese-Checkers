@@ -32,6 +32,9 @@ public class Board {
     return playerTurn;
   }
 
+  /**
+   * Setup the board.
+   */
   public void createBoard() {
     FieldsConstructor construct = new FieldsConstructor();
     construct.constructStar();
@@ -41,6 +44,11 @@ public class Board {
     height = construct.height;
   }
 
+  /**
+   * Set board for specified number of players.
+   * @param players Number of players.
+   * @throws InvalidMove
+   */
   public void setPlayers(int players) throws InvalidMove {
     if (started) {
       throw new InvalidMove("Game already started.");
@@ -75,6 +83,10 @@ public class Board {
     }
   }
 
+  /**
+   * Rearange bases for specific number of bases.
+   * @param bases Bases to activate.
+   */
   private void activateBases(int[] bases) {
     playerTrans = new int[bases.length];
     for (int i = 0; i < bases.length; i++) {
@@ -96,7 +108,11 @@ public class Board {
     }
   }
 
-  public boolean start() throws InvalidMove {
+  /**
+   * Starts the game.
+   * @throws InvalidMove When number of players is not valid.
+   */
+  public void start() throws InvalidMove {
     if (playersNum == 5 || playersNum > 6 || playersNum <= 0) {
       throw new InvalidMove("Invalid number of players");
     }
@@ -139,9 +155,12 @@ public class Board {
 
     playerTurn = 0;
     started = true;
-    return true;
   }
 
+  /**
+   * Set player ready to set to ready status.
+   * @param player Player to set ready.
+   */
   public void setReady(int player) throws InvalidMove {
     if (started) {
       throw new InvalidMove("Game already started.");
@@ -159,6 +178,9 @@ public class Board {
     }
   }
 
+  /**
+   * Interprets fields in move instruction to get move direction.
+   */
   public int getDir(MoveInstructions instr) throws InvalidMove {
     int f1 = instr.field1;
     int f2 = instr.field2;
@@ -176,6 +198,11 @@ public class Board {
     return d;
   }
 
+  /**
+   * Interprets which action to take.
+   * @param instr Instruction to execute.
+   * @return Received instruction.
+   */
   public MoveInstructions interpretMove(MoveInstructions instr) throws InvalidMove {
 
     if (instr != null) {
@@ -227,6 +254,9 @@ public class Board {
     return instr;
   }
 
+  /**
+   * Checks which players won.
+   */
   private void checkWin() {
     int[] pl = new int[6];
     for (Field f : fields) {
@@ -238,6 +268,9 @@ public class Board {
 
   }
 
+  /**
+   * Passes turn to another player.
+   */
   public void nextTurn() {
     if (nextMove != null) {
       nextMove.jumped = false;

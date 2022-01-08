@@ -1,8 +1,16 @@
 package jw.lab4.checkers;
 
+/**
+ * Board field class.
+ */
 public class Field {
+
   public Field[] neighbours;
+
+  /** Player on this field. */
   public int player = -1;
+
+  /** Player finishing base on this field. */
   public int base = -1;
 
   public boolean jumped = false;
@@ -15,6 +23,13 @@ public class Field {
     neighbours = new Field[count];
   }
 
+  /**
+   * Executes move from this field.
+   * @param nowPlay Player to move.
+   * @param dir Direction in which to move
+   * @return Return finishing field.
+   * @throws InvalidMove Threw when move is illegal.
+   */
   public Field move(int nowPlay, int dir) throws InvalidMove {
     if (player != nowPlay) {
       throw new InvalidMove("Field taken.");

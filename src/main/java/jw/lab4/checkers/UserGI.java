@@ -20,6 +20,10 @@ import javax.swing.JPanel;
 
 import jw.lab4.checkers.MoveInstructions.STATE;
 
+
+/**
+ * Game graphical interface user.
+ */
 public class UserGI extends User {
 
   private JFrame frame;
@@ -36,6 +40,9 @@ public class UserGI extends User {
 
   }
 
+  /**
+   * Setups game graphical interface.
+   */
   @Override
   public void start() {
     final int width = game.board.width;
@@ -45,13 +52,14 @@ public class UserGI extends User {
 
     frame = new JFrame("Game");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(1000, 1000);
-    frame.setLayout(new FlowLayout(FlowLayout.LEFT));
-    frame.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+    frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+
+    JPanel buttonsPanel = new JPanel();
+    buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+    buttonsPanel.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 
     JPanel board = new JPanel();
     board.setLayout(new BoxLayout(board, BoxLayout.Y_AXIS));
-    board.setSize(1000, 1000);
 
     JPanel[] rows = new JPanel[height];
 
@@ -59,7 +67,7 @@ public class UserGI extends User {
 
     fields = new FieldButton[game.board.fields.length];
 
-    warning = new JLabel("Warning");
+    warning = new JLabel("Press ready when enough players joined.");
 
     int row = -1;
     int col = 0;
@@ -90,17 +98,19 @@ public class UserGI extends User {
 
     specialButton = new SpecialButton();
 
-    // board.setBounds(0, 0, 800, 800);
     frame.add(board);
-    // warning.setBounds(0, 800, 600, 900);
-    frame.add(warning);
-    // specialButton.setBounds(600, 800, 800, 900);
-    frame.add(specialButton);
+    frame.add(buttonsPanel);
+    buttonsPanel.add(specialButton);
+    buttonsPanel.add(warning);
     frame.setVisible(true);
     move(null);
     frame.pack();
   }
 
+  /**
+   * Executes move.
+   * @param f Id of pressed field.
+   */
   public void execute(int f) {
     if (field == -1) {
       field = f;
@@ -154,7 +164,11 @@ public class UserGI extends User {
 
   }
 
-  public void setColors() {
+
+  /**
+   * Set Players colors.
+   */
+  private void setColors() {
     colors = new Color[6];
     colors[0] = Color.red;
     colors[1] = Color.green;
@@ -164,6 +178,9 @@ public class UserGI extends User {
     colors[5] = Color.cyan;
   }
 
+  /**
+   * Class of Ready/Move button.
+   */
   private class SpecialButton extends JButton implements ActionListener {
 
     private int state = 0;
@@ -220,6 +237,9 @@ public class UserGI extends User {
     }
   }
 
+  /**
+   * Class of field button.
+   */
   private class FieldButton extends JButton implements ActionListener {
 
     public int fieldNum = -1;

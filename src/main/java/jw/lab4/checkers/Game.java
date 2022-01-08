@@ -3,6 +3,9 @@ package jw.lab4.checkers;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Main game class observer - mediator between Board class and User classes
+ */
 public class Game {
   User[] users;
   Board board;
@@ -17,6 +20,10 @@ public class Game {
     start(server);
   }
 
+  /**
+   * Creates game components.
+   * @param server if this game instance should be server
+   */
   public synchronized void start(boolean server) {
     board = new Board();
     board.createBoard();
@@ -43,6 +50,11 @@ public class Game {
     }
   }
 
+  /**
+   * Executes move.
+   * @param instr Instruction to execute
+   * @throws InvalidMove 
+   */
   public synchronized void move(MoveInstructions instr) throws InvalidMove {
     if (instr == null) {
       throw new InvalidMove("No move given");

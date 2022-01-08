@@ -8,6 +8,9 @@ import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 
+/**
+ * User handling internet connection.
+ */
 public class UserInternet extends User implements Runnable {
 
   String address;
@@ -58,7 +61,7 @@ public class UserInternet extends User implements Runnable {
     }
   }
 
-  public void asServer() {
+  private void asServer() {
     ServerSocket serverS;
     try {
       serverS = new ServerSocket(port);
@@ -71,7 +74,8 @@ public class UserInternet extends User implements Runnable {
     }
   }
 
-  public synchronized void addClient(Socket socket) {
+
+  private synchronized void addClient(Socket socket) {
     if (playersNum == -1) {
       incPlayer();
       if (playersNum == -1) {
@@ -87,6 +91,9 @@ public class UserInternet extends User implements Runnable {
     setPlayersNumber(countPlayers());
   }
 
+  /**
+   * Increas player counter.
+   */
   public synchronized void incPlayer() {
     while (playersNum < maxPlayers && players[playersNum] != null) {
       playersNum++;
@@ -95,7 +102,11 @@ public class UserInternet extends User implements Runnable {
       playersNum = -1;
     }
   }
-
+  
+  /**
+   * Count number of players.
+   * @return Number of players.
+   */
   public synchronized int countPlayers() {
     int count = 0;
     for (int i = 0; i < maxPlayers; i++) {
@@ -106,7 +117,7 @@ public class UserInternet extends User implements Runnable {
     return count;
   }
 
-  public void asClient() {
+  private void asClient() {
     try {
       players = new Communicator[1];
       players[0] = new Communicator(0, new Socket(address, port), this);
@@ -118,7 +129,12 @@ public class UserInternet extends User implements Runnable {
     }
   }
 
-  public void process(int player, String line) {
+  /**
+   * Process received data.
+   * @param player Player from which data was received.
+   * @param line Received data string.
+   */
+  private void process(int player, String line) {
     System.out.println(line);
     if (line.substring(0, 3).equals("Ex:")) {
       choosePlayer(Integer.parseInt(line.substring(3)));
@@ -151,11 +167,18 @@ public class UserInternet extends User implements Runnable {
     sender = -1;
   }
 
+  /**
+   * Remove disconnected player.
+   * @param num Position to which move player counter.
+   */
   public synchronized void clean(int num) {
     players[num] = null;
     playersNum = num;
   }
 
+  /**
+   * Class for sending and receiving data through internet.
+   */
   private class Communicator implements Runnable {
     private Socket socket;
     private Scanner in;
