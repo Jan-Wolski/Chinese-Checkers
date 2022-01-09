@@ -19,6 +19,7 @@ public class UserInternet extends User implements Runnable {
 
   boolean server;
   ExecutorService executor;
+  ServerSocket serverSocket;
   Communicator[] players;
   int playersNum = 0;
   int sender = -1;
@@ -63,15 +64,14 @@ public class UserInternet extends User implements Runnable {
   }
 
   private void asServer() {
-    ServerSocket serverS;
+
     try {
-      serverS = new ServerSocket(port);
+      serverSocket = new ServerSocket(port);
       while (!game.board.started) {
-        Socket newPlayer = serverS.accept();
+        Socket newPlayer = serverSocket.accept();
         addClient(newPlayer);
       }
     } catch (IOException e) {
-      System.out.print(e);
     }
   }
 
@@ -94,7 +94,7 @@ public class UserInternet extends User implements Runnable {
     players[playersNum] = new Communicator(playersNum, socket, this);
     executor.execute(players[playersNum]);
     System.out.println("New player: " + playersNum);
-    players[playersNum].send("Ex:" + playersNum);
+    players[playersNum].send("Ex:" + playersNum + ";" + game.board.startingPlayer);
     incPlayer();
     setPlayersNumber(countPlayers());
   }
@@ -155,10 +155,12 @@ public class UserInternet extends User implements Runnable {
    * @param player Player from which data was received.
    * @param line   Received data string.
    */
-  private void process(int player, String line) {
+  private synchronized void process(int player, String line) {
     System.out.println(line);
     if (line.substring(0, 3).equals("Ex:")) {
-      choosePlayer(Integer.parseInt(line.substring(3)));
+      String[] tokens = line.substring(3).split(";");
+      game.choosePlayer(Integer.parseInt(tokens[0]));
+      game.setStartingPlayer(Integer.parseInt(tokens[1]));
     } else {
       sender = player;
       MoveInstructions instr = new MoveInstructions();
@@ -178,7 +180,7 @@ public class UserInternet extends User implements Runnable {
   }
 
   @Override
-  public void move(MoveInstructions instr) {
+  public synchronized void move(MoveInstructions instr) {
     String line = instr.serialize();
     for (Communicator pl : players) {
       if (pl != null && pl.playerNum != sender) {
@@ -196,6 +198,37 @@ public class UserInternet extends User implements Runnable {
   public synchronized void clean(int num) {
     players[num] = null;
     playersNum = num;
+    if (server) {
+      zeroClients();
+    }
+  }
+
+  public void zeroClients() {
+    for (Communicator p : players) {
+      if (p != null) {
+        return;
+      }
+    }
+    try {
+      serverSocket.close();
+      game.restart();
+    } catch (IOException e) {
+
+    }
+  }
+
+  public synchronized void close(int player) {
+    try {
+      players[player].socket.close();
+    } catch (IOException e) {
+    }
+  }
+
+  public synchronized void close() {
+    try {
+      serverSocket.close();
+    } catch (IOException e) {
+    }
   }
 
   /**
@@ -236,6 +269,11 @@ public class UserInternet extends User implements Runnable {
         parent.process(playerNum, line);
       }
       System.out.println("Player " + playerNum + " disconnected");
+      try {
+        socket.close();
+      } catch (IOException e) {
+        System.out.println(e);
+      }
       parent.clean(playerNum);
     }
 

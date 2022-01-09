@@ -1,28 +1,53 @@
 package jw.lab4.checkers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Manages flow of the game.
  */
 public class Board {
 
+  /** Numbers of player in game. */
+  public int startingPlayer = -1;
+
+  /** Numbers of player in game. */
   private int playersNum = 0;
 
+  /** Game turn. */
   private int turn = 0;
+
+  /** Which player has this turn. */
   private int playerTurn = -1;
+
+  /** List of ready players. */
   private int[] readyPlayers;
+
+  /** Transformation between base players and players on board. */
   private int[] playerTrans;
 
+  /** List of winners from first winner to last. */
+  public List<Integer> winners = new ArrayList<Integer>();
+
+  /** Fields on board. */
   public Field[] fields;
+  /** Fields on board by position. */
   public Field[][] fieldsPos;
 
+  /** If game stareted. */
   public boolean started = false;
+  public boolean finished = false;
 
+  /** Field on which pawn finished. */
   public Field nextMove = null;
 
+  /** Width of the board. */
   public int width;
+  /** Height of the board. */
   public int height;
 
-  public int maxPlayers = 6;
+  /** Maximum number of players. */
+  public final int maxPlayers = 6;
 
   Board() {
     readyPlayers = new int[maxPlayers];
@@ -48,7 +73,7 @@ public class Board {
    * Set board for specified number of players.
    * 
    * @param players Number of players.
-   * @throws InvalidMove
+   * @throws InvalidMove if game started, or invalid number of players given
    */
   public void setPlayers(int players) throws InvalidMove {
     if (started) {
@@ -156,7 +181,7 @@ public class Board {
       }
     }
 
-    playerTurn = 0;
+    playerTurn = startingPlayer % playersNum;
     started = true;
   }
 
@@ -190,7 +215,8 @@ public class Board {
     int f2 = instr.field2;
     int d;
     for (d = 0; d < fields[0].neighbours.length; d++) {
-      if (fields[f1].neighbours[d] == fields[f2]) {
+      if (fields[f1].neighbours[d] == fields[f2]
+          || (fields[f1].neighbours[d] != null && fields[f1].neighbours[d].neighbours[d] == fields[f2])) {
         break;
       }
     }
@@ -258,8 +284,6 @@ public class Board {
       }
 
       nextMove = finishField;
-
-      checkWin();
     } else {
       throw new InvalidMove("Game not started yet.");
     }
@@ -272,12 +296,23 @@ public class Board {
   private void checkWin() {
     int[] pl = new int[6];
     for (Field f : fields) {
-      if (f.player == f.base + 3 % 6) {
+      if (f.base != -1 && f.player == f.base) {
         pl[f.player]++;
       }
     }
-    System.out.println(pl);
-
+    for (int i = 0; i < playersNum; i++) {
+      if (!winners.contains(i)) {
+        if (pl[i] >= 10) {
+          winners.add(i);
+          if (winners.size() == playersNum - 1) {
+            finished = true;
+            checkWin();
+          }
+        } else if (finished) {
+          winners.add(i);
+        }
+      }
+    }
   }
 
   /**
@@ -288,10 +323,15 @@ public class Board {
       nextMove.jumped = false;
     }
     nextMove = null;
-    playerTurn++;
+    checkWin();
+
+    do {
+      playerTurn++;
+    } while (winners.contains(playerTurn));
     turn++;
     if (playerTurn >= playersNum) {
       playerTurn = 0;
     }
   }
+
 }

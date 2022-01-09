@@ -46,13 +46,6 @@ public abstract class User {
   }
 
 
-  /**
-   * Set player for this game instance.
-   * @param player Player number to set.
-   */
-  public void choosePlayer(int player) {
-    game.player = player;
-  }
 
   /**
    * Set number of players in game.
@@ -108,4 +101,6 @@ public abstract class User {
       error(e.getMessage());
     }
   }
+
+
 }

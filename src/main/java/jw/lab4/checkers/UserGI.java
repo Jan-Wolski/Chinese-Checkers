@@ -28,8 +28,9 @@ public class UserGI extends User {
   private JFrame frame;
   private FieldButton[] fields;
   private SpecialButton specialButton;
-  private JLabel warning;
+  private JLabel info;
   Color[] colors;
+  String[] colorNames;
   Color defaultColor = Color.lightGray;
   boolean yourTurn = false;
 
@@ -66,7 +67,7 @@ public class UserGI extends User {
 
     fields = new FieldButton[game.board.fields.length];
 
-    warning = new JLabel("Press ready when enough players joined.");
+    info = new JLabel();
 
     int row = -1;
     int col = 0;
@@ -86,7 +87,7 @@ public class UserGI extends User {
         }
 
         rows[row] = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        rows[row].setSize(800, 800 / 17);
+        // rows[row].setSize(800, 800 / 17);
         board.add(rows[row]);
 
       }
@@ -100,7 +101,7 @@ public class UserGI extends User {
     frame.add(board);
     frame.add(buttonsPanel);
     buttonsPanel.add(specialButton);
-    buttonsPanel.add(warning);
+    buttonsPanel.add(info);
     frame.setVisible(true);
     move(null);
     frame.pack();
@@ -112,29 +113,27 @@ public class UserGI extends User {
    * @param f Id of pressed field.
    */
   public void execute(int f) {
-
-    if (field == -1) {
-      if (game.board.checkPlayer(game.player, f)) {
-        field = f;
-        fields[field].selected = true;
-      }
-    } else if (field == f) {
-      fields[field].selected = false;
-      field = -1;
-    } else {
-      MoveInstructions instr = new MoveInstructions(field, f);
-      if (processMove(instr)) {
+    if (yourTurn) {
+      if (field == -1) {
+        if (game.board.checkPlayer(game.player, f)) {
+          field = f;
+          fields[field].selected = true;
+        }
+      } else if (field == f) {
         fields[field].selected = false;
         field = -1;
+      } else {
+        MoveInstructions instr = new MoveInstructions(field, f);
+        if (processMove(instr)) {
+          fields[field].selected = false;
+          field = -1;
+        }
       }
     }
-
   }
 
   @Override
   public void error(String str) {
-    warning.setText(str);
-
     move(null);
   }
 
@@ -179,6 +178,13 @@ public class UserGI extends User {
     colors[3] = Color.yellow;
     colors[4] = Color.pink;
     colors[5] = Color.cyan;
+    colorNames = new String[6];
+    colorNames[0] = "Red";
+    colorNames[1] = "Green";
+    colorNames[2] = "Blue";
+    colorNames[3] = "Yellow";
+    colorNames[4] = "Pink";
+    colorNames[5] = "Cyan";
   }
 
   /**
@@ -195,30 +201,54 @@ public class UserGI extends User {
 
     public void setReadyState() {
       setText("Ready");
+      info.setText("Press ready when enough players join.");
       state = 1;
     }
 
     public void setMoveState() {
       setText("Finish");
+      info.setText("Your turn! (" + colorNames[game.player] + ")");
       state = 2;
     }
 
     public void setWaitState() {
       setText("Wait");
+      info.setText(colorNames[game.board.getPlayer()] + "'s turn!");
       state = 3;
     }
 
-    public void changeState(MoveInstructions instr) {
-      if (instr.player == game.player && instr.state == STATE.READY) {
-        setWaitState();
-      } else {
+    public void setWaitForReadyState() {
+      setText("Wait");
+      info.setText("Game not started yet.");
+      state = 4;
+    }
 
-        if (instr.state == STATE.NEXT || (instr.state == STATE.READY && game.board.started)) {
+    public void setWinState(int place) {
+      if (place == 0) {
+        setText("Hooray!");
+        info.setText("You won!");
+      } else {
+        setText("Yay!");
+        info.setText("You got " + (place + 1) + " place.");
+      }
+
+      state = 5;
+    }
+
+    public void changeState(MoveInstructions instr) {
+      if (game.board.started) {
+        if (game.place > -1) {
+          setWinState(game.place);
+        } else {
           if (yourTurn) {
             setMoveState();
           } else {
             setWaitState();
           }
+        }
+      } else {
+        if (instr.player == game.player && instr.state == STATE.READY) {
+          setWaitForReadyState();
         }
       }
     }
@@ -231,8 +261,6 @@ public class UserGI extends User {
           break;
         case 2:
           finishMove();
-          break;
-        case 3:
           break;
         default:
           break;
