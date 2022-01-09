@@ -11,6 +11,6 @@ public class EntryPoint {
     if (args.length > 0) {
       server = Boolean.parseBoolean(args[0]);
     }
-    game.start(server);
+    game.start(server, false);
   }
 }

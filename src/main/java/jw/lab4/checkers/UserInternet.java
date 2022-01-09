@@ -1,5 +1,6 @@
 package jw.lab4.checkers;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -65,7 +66,7 @@ public class UserInternet extends User implements Runnable {
     ServerSocket serverS;
     try {
       serverS = new ServerSocket(port);
-      while (true) {
+      while (!game.board.started) {
         Socket newPlayer = serverS.accept();
         addClient(newPlayer);
       }
@@ -74,8 +75,15 @@ public class UserInternet extends User implements Runnable {
     }
   }
 
-
   private synchronized void addClient(Socket socket) {
+    if (game.board.started) {
+      try {
+        socket.close();
+      } catch (IOException e) {
+      }
+      return;
+    }
+
     if (playersNum == -1) {
       incPlayer();
       if (playersNum == -1) {
@@ -95,6 +103,9 @@ public class UserInternet extends User implements Runnable {
    * Increas player counter.
    */
   public synchronized void incPlayer() {
+    if (playersNum < 0) {
+      playersNum++;
+    }
     while (playersNum < maxPlayers && players[playersNum] != null) {
       playersNum++;
     }
@@ -102,9 +113,10 @@ public class UserInternet extends User implements Runnable {
       playersNum = -1;
     }
   }
-  
+
   /**
    * Count number of players.
+   * 
    * @return Number of players.
    */
   public synchronized int countPlayers() {
@@ -118,21 +130,30 @@ public class UserInternet extends User implements Runnable {
   }
 
   private void asClient() {
-    try {
-      players = new Communicator[1];
-      players[0] = new Communicator(0, new Socket(address, port), this);
-      players[0].run();
-    } catch (UnknownHostException e) {
-      System.out.print(e);
-    } catch (IOException e) {
-      System.out.print(e);
+    boolean done = false;
+    while (!done) {
+      try {
+        players = new Communicator[1];
+        players[0] = new Communicator(0, new Socket(address, port), this);
+        players[0].run();
+        done = true;
+      } catch (UnknownHostException e) {
+        System.out.print("aa");
+      } catch (IOException e) {
+        try {
+          Thread.sleep(1);
+        } catch (InterruptedException ee) {
+          System.out.print(ee);
+        }
+      }
     }
   }
 
   /**
    * Process received data.
+   * 
    * @param player Player from which data was received.
-   * @param line Received data string.
+   * @param line   Received data string.
    */
   private void process(int player, String line) {
     System.out.println(line);
@@ -169,6 +190,7 @@ public class UserInternet extends User implements Runnable {
 
   /**
    * Remove disconnected player.
+   * 
    * @param num Position to which move player counter.
    */
   public synchronized void clean(int num) {

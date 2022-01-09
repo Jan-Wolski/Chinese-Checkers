@@ -46,6 +46,7 @@ public class Board {
 
   /**
    * Set board for specified number of players.
+   * 
    * @param players Number of players.
    * @throws InvalidMove
    */
@@ -85,6 +86,7 @@ public class Board {
 
   /**
    * Rearange bases for specific number of bases.
+   * 
    * @param bases Bases to activate.
    */
   private void activateBases(int[] bases) {
@@ -110,10 +112,11 @@ public class Board {
 
   /**
    * Starts the game.
+   * 
    * @throws InvalidMove When number of players is not valid.
    */
   public void start() throws InvalidMove {
-    if (playersNum == 5 || playersNum > 6 || playersNum <= 0) {
+    if (playersNum == 5 || playersNum > 6 || playersNum <= 1) {
       throw new InvalidMove("Invalid number of players");
     }
 
@@ -159,6 +162,7 @@ public class Board {
 
   /**
    * Set player ready to set to ready status.
+   * 
    * @param player Player to set ready.
    */
   public void setReady(int player) throws InvalidMove {
@@ -200,12 +204,16 @@ public class Board {
 
   /**
    * Interprets which action to take.
+   * 
    * @param instr Instruction to execute.
    * @return Received instruction.
    */
   public MoveInstructions interpretMove(MoveInstructions instr) throws InvalidMove {
 
     if (instr != null) {
+      if (instr.player == -1) {
+        throw new InvalidMove("Player not set.");
+      }
       switch (instr.state) {
         case JOIN:
           setPlayers(instr.player);
@@ -225,6 +233,10 @@ public class Board {
     }
 
     return instr;
+  }
+
+  public boolean checkPlayer(int player, int field) {
+    return (fields[field].player == playerTurn && playerTurn == player);
   }
 
   public MoveInstructions move(MoveInstructions instr) throws InvalidMove {

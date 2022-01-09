@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 
 import jw.lab4.checkers.MoveInstructions.STATE;
 
-
 /**
  * Game graphical interface user.
  */
@@ -109,18 +108,22 @@ public class UserGI extends User {
 
   /**
    * Executes move.
+   * 
    * @param f Id of pressed field.
    */
   public void execute(int f) {
+
     if (field == -1) {
-      field = f;
-      fields[field].selected = true;
+      if (game.board.checkPlayer(game.player, f)) {
+        field = f;
+        fields[field].selected = true;
+      }
     } else if (field == f) {
       fields[field].selected = false;
       field = -1;
     } else {
-      MoveInstructions m = new MoveInstructions(field, f);
-      if (processMove(m)) {
+      MoveInstructions instr = new MoveInstructions(field, f);
+      if (processMove(instr)) {
         fields[field].selected = false;
         field = -1;
       }
@@ -131,6 +134,7 @@ public class UserGI extends User {
   @Override
   public void error(String str) {
     warning.setText(str);
+
     move(null);
   }
 
@@ -163,7 +167,6 @@ public class UserGI extends User {
     }
 
   }
-
 
   /**
    * Set Players colors.

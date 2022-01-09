@@ -17,14 +17,20 @@ public class Game {
   }
 
   Game(boolean server) {
-    start(server);
+    start(server, true);
+  }
+
+  Game(boolean server, boolean waitAfter) {
+    start(server, waitAfter);
   }
 
   /**
    * Creates game components.
+   * 
    * @param server if this game instance should be server
+   * @param waitAfter if thread should wait after creating a game
    */
-  public synchronized void start(boolean server) {
+  public synchronized void start(boolean server, boolean waitAfter) {
     board = new Board();
     board.createBoard();
     if (server) {
@@ -43,17 +49,19 @@ public class Game {
       users[1].gameSet(this);
       users[1].start();
     }
-    try {
-      wait();
-    } catch (InterruptedException e) {
-      System.exit(0);
+    if (waitAfter) {
+      try {
+        wait();
+      } catch (InterruptedException e) {
+      }
     }
   }
 
   /**
    * Executes move.
+   * 
    * @param instr Instruction to execute
-   * @throws InvalidMove 
+   * @throws InvalidMove
    */
   public synchronized void move(MoveInstructions instr) throws InvalidMove {
     if (instr == null) {
