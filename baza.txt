@@ -1,0 +1,15 @@
+games:
+id
+player_num
+
+players:
+game_id
+player_num
+nickname
+
+turns:
+game_id
+move_id
+player_num
+field_one
+field_two

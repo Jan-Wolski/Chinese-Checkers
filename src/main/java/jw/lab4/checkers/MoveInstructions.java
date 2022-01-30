@@ -5,7 +5,7 @@ package jw.lab4.checkers;
  */
 public class MoveInstructions {
 
-  private final int paramNum = 4;
+  private final int paramNum = 5;
 
   /** Decides which player to move, or select player.*/
   public int player = -1;
@@ -16,9 +16,13 @@ public class MoveInstructions {
   /** Field id to which the player moves.*/
   public int field2 = -1;
 
+  /** Field id to which the player moves.*/
+  public String nick = "-";
+
   public enum STATE {
     PLAY,
     READY,
+    LOAD,
     NEXT,
     JOIN,
     ERROR,
@@ -35,6 +39,11 @@ public class MoveInstructions {
     this.state = state;
   }
 
+  public MoveInstructions(String name) {
+    state = STATE.READY;
+    this.nick = name;
+  }
+
   public MoveInstructions(int player) {
     state = STATE.READY;
     this.player = player;
@@ -47,9 +56,13 @@ public class MoveInstructions {
 
   private String serializeInt(int vari) {
     String str = ";";
-    // if (vari != -1) {
     str += Integer.toString(vari);
-    // }
+    return str;
+  }
+
+  private String serializeString(String vars) {
+    String str = ";";
+    str += vars;
     return str;
   }
 
@@ -59,6 +72,7 @@ public class MoveInstructions {
     str += serializeInt(player);
     str += serializeInt(field1);
     str += serializeInt(field2);
+    str += serializeString(nick);
     return str;
   }
 
@@ -69,6 +83,7 @@ public class MoveInstructions {
       player = Integer.parseInt(tokens[1]);
       field1 = Integer.parseInt(tokens[2]);
       field2 = Integer.parseInt(tokens[3]);
+      nick = tokens[4];
     }
   }
 

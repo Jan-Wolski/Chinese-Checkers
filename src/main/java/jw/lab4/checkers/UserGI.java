@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import jw.lab4.checkers.MoveInstructions.STATE;
 
@@ -28,6 +29,8 @@ public class UserGI extends User {
   private JFrame frame;
   private FieldButton[] fields;
   private SpecialButton specialButton;
+  private JButton loadButton;
+  private JTextArea nick;
   private JLabel info;
   Color[] colors;
   String[] colorNames;
@@ -69,6 +72,10 @@ public class UserGI extends User {
 
     info = new JLabel();
 
+    nick = new JTextArea("Nickname");
+    nick.setColumns(30);
+    loadButton = new JButton("Ready for Load");
+
     int row = -1;
     int col = 0;
 
@@ -100,6 +107,8 @@ public class UserGI extends User {
 
     frame.add(board);
     frame.add(buttonsPanel);
+    buttonsPanel.add(nick);
+    buttonsPanel.add(loadButton);
     buttonsPanel.add(specialButton);
     buttonsPanel.add(info);
     frame.setVisible(true);
@@ -257,7 +266,8 @@ public class UserGI extends User {
     public void actionPerformed(ActionEvent arg0) {
       switch (state) {
         case 1:
-          ready();
+          ready(nick.getText());
+          nick.setEditable(false);
           break;
         case 2:
           finishMove();

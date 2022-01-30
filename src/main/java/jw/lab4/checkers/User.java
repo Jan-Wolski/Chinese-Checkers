@@ -1,5 +1,7 @@
 package jw.lab4.checkers;
 
+import java.util.stream.IntStream;
+
 /**
  * Interface for sending and receiving data from the game.
  */
@@ -65,14 +67,23 @@ public abstract class User {
    * Executes ready with player of this game instance.
    */
   public void ready() {
-    ready(-1);
+    ready(-1,"");
   }
+
+  /**
+   * Executes ready with player of this game instance.
+   */
+  public void ready(String nick) {
+    ready(-1,nick);
+  }
+
 
   /**
    * Set player in ready state.
    */
-  public void ready(int player) {
+  public void ready(int player,String nick) {
     MoveInstructions instr = new MoveInstructions(MoveInstructions.STATE.READY);
+    instr.nick = nick;
     instr.player = player;
     try {
       game.move(instr);

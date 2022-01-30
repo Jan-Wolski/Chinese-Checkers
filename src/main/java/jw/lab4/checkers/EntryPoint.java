@@ -18,6 +18,6 @@ public class EntryPoint {
     if (args.length > 2) {
       host = args[2];
     }
-    game.start(server, false, host, port);
+    game.start(server, true, host, port);
   }
 }

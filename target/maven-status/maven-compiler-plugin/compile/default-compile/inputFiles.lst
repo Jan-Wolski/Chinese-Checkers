@@ -3,11 +3,12 @@
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Board.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Field.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Game.java
-/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Settings.java
-/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/FieldsConstructor.java
+/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Database/Player.java
+/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Database/Game.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/User.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/UserInternet.java
-/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/UserCI.java
+/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/Database/Move.java
+/home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/UserSave.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/UserGI.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/FieldsFactory.java
 /home/jak/studia/Technologia/Lab4/src/main/java/jw/lab4/checkers/EntryPoint.java

@@ -60,24 +60,32 @@ public class Game {
     admin = false;
     board = new Board();
     board.createBoard();
+
     if (server) {
       setStartingPlayer(drawStartingPlayer());
-      users = new User[1];
+      users = new User[2];
+
       executor = Executors.newFixedThreadPool(7);
       users[0] = new UserInternet(port, executor);
       users[0].gameSet(this);
       users[0].start();
-      admin = true;
-    } else {
-      users = new User[2];
-      executor = Executors.newFixedThreadPool(2);
-      users[0] = new UserGI();
-      users[0].gameSet(this);
-      users[0].start();
-      users[1] = new UserInternet(host, port, executor);
+
+      users[1] = new UserSave();
       users[1].gameSet(this);
       users[1].start();
 
+      admin = true;
+    } else {
+      users = new User[2];
+      
+      users[0] = new UserGI();
+      users[0].gameSet(this);
+      users[0].start();
+
+      executor = Executors.newFixedThreadPool(2);
+      users[1] = new UserInternet(host, port, executor);
+      users[1].gameSet(this);
+      users[1].start();
     }
     if (waitAfter) {
       try {
@@ -100,8 +108,9 @@ public class Game {
 
     if (instr.state == MoveInstructions.STATE.ERROR) {
       System.out.println("Desynchronized");
-      System.exit(-1);
+      return;
     }
+
 
     if (instr.player == -1) {
       instr.player = player;

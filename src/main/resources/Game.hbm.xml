@@ -1,0 +1,65 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+"-//Hibernate/Hibernate Mapping DTD//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+
+<hibernate-mapping>
+  <class name = "jw.lab4.checkers.Database.Game" table = "Games">
+    
+    <meta attribute = "class-description">
+      This class contains specific game information.
+    </meta>
+    
+    <id name = "id" type = "int" column = "id">
+      <generator class="native"/>
+    </id>
+    
+    <property name = "playersNumber" column = "players_number" type = "int"/>
+    <property name = "lastPlayer" column = "last_player" type = "int"/>
+
+    <list name = "players" cascade="all">
+      <key column = "game_id"/>
+      <list-index column = "player_number"/>
+      <one-to-many class="jw.lab4.checkers.Database.Player"/>
+    </list>
+
+    <list name = "moves" cascade="all">
+      <key column = "game_id"/>
+      <list-index column = "move_id"/>
+      <one-to-many class="jw.lab4.checkers.Database.Move"/>
+    </list>
+    
+    
+  </class>
+
+  <class name = "jw.lab4.checkers.Database.Player" table = "Players">
+    
+    <meta attribute = "class-description">
+      This class contains specific player information.
+    </meta>
+
+    <id name="id" type="int" column="id">
+      <generator class="native"/>
+    </id>
+    
+    <property name = "nickname" column = "nickname" type = "string"/>
+    
+  </class>
+
+  <class name = "jw.lab4.checkers.Database.Move" table = "Moves">
+    
+    <meta attribute = "class-description">
+      This class contains specific move information.
+    </meta>
+    
+    <id name="id" type="int" column="id">
+      <generator class="native"/>
+    </id>
+
+    <property name = "fieldOne" column = "field_one" type = "int"/>
+    <property name = "fieldTwo" column = "field_two" type = "int"/>
+    
+  </class>
+
+
+</hibernate-mapping>

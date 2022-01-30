@@ -3,7 +3,7 @@ package jw.lab4.checkers;
 /**
  * Class constructing board.
  */
-public class FieldsConstructor {
+public class FieldsFactory {
 
   protected Field[] fields;
   protected Field[][] fieldsPos;

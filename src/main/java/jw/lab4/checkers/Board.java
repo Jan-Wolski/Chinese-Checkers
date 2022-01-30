@@ -61,7 +61,7 @@ public class Board {
    * Setup the board.
    */
   public void createBoard() {
-    FieldsConstructor construct = new FieldsConstructor();
+    FieldsFactory construct = new FieldsFactory();
     construct.constructStar();
     fields = construct.getFields();
     fieldsPos = construct.getFieldsPos();
@@ -247,6 +247,7 @@ public class Board {
         case PLAY:
           move(instr);
           break;
+        case LOAD:
         case READY:
           setReady(instr.player);
           break;
@@ -266,6 +267,9 @@ public class Board {
   }
 
   public MoveInstructions move(MoveInstructions instr) throws InvalidMove {
+    if (instr.field1 == -1 || instr.field2 == -1 || instr.player == -1) {
+      throw new InvalidMove("Invalid fields.");
+    }
     if (started) {
       if (instr.player != playerTurn) {
         throw new InvalidMove("Wrong player");

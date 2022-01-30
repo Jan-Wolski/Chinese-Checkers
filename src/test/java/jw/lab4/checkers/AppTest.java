@@ -6,14 +6,50 @@ import jw.lab4.checkers.MoveInstructions.STATE;
 
 import org.junit.Test;
 
-
-
 /**
  * Tests the game.
  */
 public class AppTest {
 
   int port = 8000;
+
+  @Test
+  public void badData() {
+    Game[] games = new Game[3];
+    final Game server = new Game(true, false, port);
+    justSleep(100);
+
+    for (int i = 0; i < 3; i++) {
+      games[i] = new Game(false, false, port);
+    }
+    justSleep(100);
+
+    startGames(games, 3);
+    justSleep(100);
+    assertTrue(server.board.started);
+
+    MoveInstructions instr = new MoveInstructions(STATE.NEXT);
+    
+    
+    try {
+      games[games[0].board.getPlayer()].move(instr);
+    } catch (InvalidMove e) {
+      System.out.println(e);
+    }
+    int firstTurn = games[0].board.getPlayer();
+    
+    ((UserInternet) games[firstTurn].users[1]).send(0,"This is bad ;move");
+    try {
+      games[games[0].board.getPlayer()].move(instr);
+    } catch (InvalidMove e) {
+      System.out.println(e);
+    }
+    justSleep(100);
+    int secondTurn = games[0].board.getPlayer();
+    assertTrue(firstTurn != secondTurn);
+    ((UserInternet) server.users[0]).close();
+    port++;
+  }
 
   @Test
   public void differentGames() {
@@ -46,11 +82,11 @@ public class AppTest {
   @Test
   public void winGame() {
     Game[] games = new Game[4];
-    final Game server = new Game(true, false,port);
+    final Game server = new Game(true, false, port);
     justSleep(100);
 
     for (int i = 0; i < 4; i++) {
-      games[i] = new Game(false, false,port);
+      games[i] = new Game(false, false, port);
     }
 
     startGames(games);
@@ -77,35 +113,34 @@ public class AppTest {
       port++;
     }
     ((UserInternet) server.users[0]).close();
-
   }
 
   @Test
   public void connectingReconnecting() {
     Game[] games = new Game[7];
-    final Game server = new Game(true, false,port);
+    final Game server = new Game(true, false, port);
     justSleep(100);
-    games[1] = new Game(false, false,port);
-    games[2] = new Game(false, false,port);
-    games[3] = new Game(false, false,port);
+    games[1] = new Game(false, false, port);
+    games[2] = new Game(false, false, port);
+    games[3] = new Game(false, false, port);
 
     justSleep(100);
     ((UserInternet) games[2].users[1]).close(0);
-    games[2] = new Game(false, false,port);
+    games[2] = new Game(false, false, port);
 
     justSleep(100);
     ((UserInternet) games[2].users[1]).close(0);
-    games[2] = new Game(false, false,port);
+    games[2] = new Game(false, false, port);
 
     justSleep(100);
     ((UserInternet) games[1].users[1]).close(0);
-    games[1] = new Game(false, false,port);
+    games[1] = new Game(false, false, port);
 
     justSleep(100);
     ((UserInternet) games[1].users[1]).close(0);
-    games[1] = new Game(false, false,port);
+    games[1] = new Game(false, false, port);
 
-    games[0] = new Game(false, false,port);
+    games[0] = new Game(false, false, port);
 
     justSleep(100);
     startGames(games, 4);
@@ -144,5 +179,27 @@ public class AppTest {
       System.out.println(e.getMessage());
       assertTrue(false);
     }
+  }
+
+  @Test
+  public void saving() {
+    int a = 0;
+    UserSave safe = new UserSave();
+    MoveInstructions instr = new MoveInstructions();
+    instr.player = 1;
+    instr.field1 = 1;
+    instr.field2 = 2;
+    safe.move(instr);
+
+    instr.player = 2;
+    instr.field1 = 5;
+    instr.field2 = 6;
+    safe.move(instr);
+
+    instr.player = 3;
+    instr.field1 = 8;
+    instr.field2 = 20;
+    safe.move(instr);
+    
   }
 }

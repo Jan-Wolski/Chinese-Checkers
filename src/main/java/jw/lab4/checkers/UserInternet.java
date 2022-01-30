@@ -168,6 +168,9 @@ public class UserInternet extends User implements Runnable {
       if (server) {
         instr.player = player;
       }
+      if (instr.state == MoveInstructions.STATE.ERROR) {
+        return;
+      }
       processMove(instr);
     }
   }
@@ -188,6 +191,10 @@ public class UserInternet extends User implements Runnable {
       }
     }
     sender = -1;
+  }
+
+  public synchronized void send(int player, String line) {
+    players[player].send(line);
   }
 
   /**
